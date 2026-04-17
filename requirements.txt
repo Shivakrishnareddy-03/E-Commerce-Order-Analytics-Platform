@@ -9,3 +9,7 @@ six==1.17.0
 SQLAlchemy==2.0.48
 typing_extensions==4.15.0
 tzdata==2025.3
+dbt-core==1.11.8
+dbt-postgres==1.10.0
+sqlfluff==4.1.0
+sqlfluff-templater-dbt==4.1.0

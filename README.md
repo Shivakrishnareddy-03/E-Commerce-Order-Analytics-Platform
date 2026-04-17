@@ -1,223 +1,215 @@
-# 📊 DMQL Project – E-commerce Data Modeling with PostgreSQL
+# E-Commerce Order Analytics Platform
+
+## Project Objective
+
+Design, implement, and analyze a real-world e-commerce dataset using a well-structured relational database, an analytics-ready star schema, and automated CI/CD pipelines.
 
 ---
 
-## 📌 Project Objective
+## Phase 1: Infrastructure, Modeling, and Data Ingestion
 
-The goal of this project is to **design, implement, and populate** a well-structured relational database using a real-world e-commerce dataset.
+- Designed a **normalized schema (3NF)** with 7 tables
+- Created an **ERD (Entity Relationship Diagram)**
+- Implemented the schema in **PostgreSQL (Neon Cloud)**
+- Built a **Python data ingestion pipeline** (Pandas + SQLAlchemy)
+- Ensured **data integrity and idempotency**
+- Applied **Role-Based Access Control (RBAC)**
 
-We:
+## Phase 2: Transformation, Quality, and CI/CD
 
-* Designed a **normalized schema (up to 3NF)**
-* Created an **ERD (Entity Relationship Diagram)**
-* Implemented the schema in **PostgreSQL (Neon Cloud)**
-* Built a **Python data ingestion pipeline**
-* Ensured **data integrity & idempotency**
-* Applied **basic security (RBAC)**
-
----
-
-## ⚙️ Tech Stack
-
-* **Python** (Pandas, SQLAlchemy)
-* **PostgreSQL** (Neon – Serverless DB)
-* **GitHub** (Version Control)
-* **SQL** (Schema + Queries)
+- Transformed OLTP schema into an optimized **Star Schema** using **dbt**
+- Implemented **43 dbt tests** for data quality (unique, not_null, relationships, accepted_values)
+- Generated a **data catalog** with `dbt docs`
+- Set up **GitHub Actions CI/CD** with SQLFluff linting and dbt tests on every PR
+- Wrote **3 advanced analytical queries** using CTEs and window functions
+- Performed **query performance tuning** with strategic indexing and EXPLAIN ANALYZE
 
 ---
 
-## 🗂️ Project Structure
+## Tech Stack
+
+- **Python** (Pandas, SQLAlchemy)
+- **PostgreSQL** (Neon Serverless)
+- **dbt** (Data Build Tool) for transformations and testing
+- **SQLFluff** for SQL linting
+- **GitHub Actions** for CI/CD
+- **Git/GitHub** for version control
+
+---
+
+## Project Structure
 
 ```
-DMQL/
+E-Commerce-Order-Analytics-Platform/
 │
-├── data/                     # Raw dataset (CSV files)
+├── data/                          # Raw dataset (9 CSV files)
 │
 ├── scripts/
-│   ├── ingest_data.py       # Data loading pipeline
-│   ├── run_schema.py        # Executes schema.sql
+│   ├── ingest_data.py             # Data loading pipeline
+│   └── run_schema.py              # Executes schema.sql
 │
 ├── sql/
-│   ├── schema.sql           # Database schema (tables + constraints)
-│   ├── security.sql         # RBAC roles (analyst, app_user)
+│   ├── schema.sql                 # Database schema (3NF tables + constraints)
+│   ├── security.sql               # RBAC roles (analyst, app_user)
+│   ├── advanced_queries.sql       # 3 complex analytical queries
+│   └── indexes.sql                # Strategic performance indexes
 │
-├── ERD.png                  # Entity Relationship Diagram
-├── report.md                # 3NF justification report
-├── README.md                # Project documentation
-└── .gitignore               # Ignore sensitive files
+├── dbt_project/
+│   ├── dbt_project.yml            # dbt project configuration
+│   ├── profiles.yml               # Database connection profile
+│   ├── packages.yml               # dbt packages (dbt_utils)
+│   ├── .sqlfluff                  # SQL linter configuration
+│   └── models/
+│       ├── staging/               # Staging views (clean/rename raw tables)
+│       │   ├── _stg_sources.yml   # Source definitions
+│       │   ├── _stg_models.yml    # Staging model tests
+│       │   ├── stg_customers.sql
+│       │   ├── stg_orders.sql
+│       │   ├── stg_products.sql
+│       │   ├── stg_sellers.sql
+│       │   ├── stg_order_items.sql
+│       │   ├── stg_payments.sql
+│       │   └── stg_reviews.sql
+│       └── marts/                 # Star schema (dimension + fact tables)
+│           ├── _marts_models.yml  # Mart model tests
+│           ├── dim_customers.sql
+│           ├── dim_products.sql
+│           ├── dim_sellers.sql
+│           ├── dim_date.sql
+│           └── fact_order_items.sql
+│
+├── .github/workflows/
+│   └── ci.yml                     # CI/CD: SQLFluff lint + dbt test on PR
+│
+├── docs/
+│   └── performance_tuning_report.md
+│
+├── ERD.png                        # Entity Relationship Diagram (3NF)
+├── star_schema.png                # Star Schema Diagram
+├── DMQL_3NF_Report.pdf            # 3NF justification report
+└── README.md
 ```
 
 ---
 
-## 🧠 Database Design
+## Star Schema Design
 
-### ✔️ Key Entities
+The dbt project transforms the normalized 3NF OLTP tables into an optimized star schema for analytics:
 
-* Customers
-* Orders
-* Products
-* Sellers
-* Order Items (Bridge Table)
-* Payments
-* Reviews
+| Table | Type | Description | Row Count |
+|-------|------|-------------|-----------|
+| **fact_order_items** | Fact | Order line items with payment and review metrics | 112,650 |
+| **dim_customers** | Dimension | Customer location details | 99,441 |
+| **dim_products** | Dimension | Product category and physical attributes | 32,951 |
+| **dim_sellers** | Dimension | Seller location details | 3,095 |
+| **dim_date** | Dimension | Date attributes (year, quarter, month, day) | 774 |
 
-### ✔️ Normalization
-
-* Schema is designed up to **Third Normal Form (3NF)**
-* Eliminates redundancy
-* Ensures data consistency
-* Uses **bridge table (order_items)** for many-to-many relationships
+![Star Schema](star_schema.png)
 
 ---
 
-## 🚀 Step-by-Step Setup & Execution
+## dbt Tests (43 total)
 
-Follow these steps to run the project from scratch:
+- **not_null**: All primary keys and foreign keys
+- **unique**: All primary keys
+- **relationships**: Foreign key integrity between fact and dimension tables
+- **accepted_values**: Review scores must be 1-5
 
 ---
 
-### 🔹 Step 1: Clone Repository
+## Advanced Analytical Queries
+
+1. **Monthly Revenue with MoM Growth** -- Uses CTE + `LAG()` window function
+2. **Top 5 Sellers per State with Cumulative Revenue** -- Uses CTE + `RANK()` + cumulative `SUM() OVER`
+3. **Customer Cohort Retention Analysis** -- Uses multiple CTEs + date math
+
+See `sql/advanced_queries.sql` for full queries.
+
+---
+
+## CI/CD Pipeline
+
+GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every PR to `main`:
+
+1. **SQLFluff Lint** -- Checks SQL formatting and style
+2. **dbt Test** -- Runs all 43 data quality tests
+
+---
+
+## Setup Instructions
+
+### 1. Clone and install
 
 ```bash
 git clone <your-repo-link>
-cd DMQL
+cd E-Commerce-Order-Analytics-Platform
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
----
+### 2. Configure environment
 
-### 🔹 Step 2: Create Virtual Environment
-
-```bash
-python -m venv venv
-source venv/bin/activate   # Mac/Linux
+Create `.env` in the project root:
 ```
-
----
-
-### 🔹 Step 3: Install Dependencies
-
-```bash
-pip install pandas sqlalchemy psycopg2-binary python-dotenv
-```
-
----
-
-### 🔹 Step 4: Setup Environment Variables
-
-Create a `.env` file in the root folder:
-
-```env
 DATABASE_URL=your_neon_database_url
 ```
 
-⚠️ Make sure:
+Create `dbt_project/.env`:
+```
+DBT_HOST=your_neon_host
+DBT_USER=your_neon_user
+DBT_PASSWORD=your_neon_password
+```
 
-* Use **direct connection (not pooler)**
-* Keep `.env` private (already in `.gitignore`)
-
----
-
-### 🔹 Step 5: Create Database Schema
+### 3. Run Phase 1 (schema + ingestion)
 
 ```bash
 python scripts/run_schema.py
-```
-
-✔️ This will:
-
-* Create all tables
-* Apply constraints (PK, FK, NOT NULL, CHECK)
-
----
-
-### 🔹 Step 6: Load Data into Database
-
-```bash
 python scripts/ingest_data.py
 ```
 
-✔️ This will:
+### 4. Run Phase 2 (dbt)
 
-* Clean & transform data
-* Handle missing values
-* Insert data in correct order
-* Avoid duplicates (idempotent)
-
----
-
-### 🔹 Step 7: Verify Data in Neon
-
-Go to Neon → Tables → Run queries like:
-
-```sql
-SELECT COUNT(*) FROM orders;
-SELECT COUNT(*) FROM customers;
-SELECT COUNT(*) FROM order_items;
+```bash
+cd dbt_project
+export $(cat .env | xargs)
+dbt deps
+dbt run
+dbt test
+dbt docs generate
+dbt docs serve    # Opens data catalog in browser
 ```
 
+### 5. GitHub Secrets (for CI/CD)
+
+Add these in GitHub repo Settings > Secrets:
+- `DBT_HOST`
+- `DBT_USER`
+- `DBT_PASSWORD`
+
 ---
 
-## 🔐 Security (RBAC)
-
-Roles implemented:
-
-* **analyst**
-
-  * Read-only access (SELECT)
-
-* **app_user**
-
-  * SELECT, INSERT, UPDATE access
-
-To apply:
+## Sample Queries
 
 ```sql
--- Run in Neon SQL Editor
-\i sql/security.sql
-```
-
----
-
-## ⚡ Key Features
-
-* ✔️ Fully normalized database (3NF)
-* ✔️ Idempotent data ingestion
-* ✔️ Foreign key integrity maintained
-* ✔️ Clean schema design
-* ✔️ Cloud-hosted PostgreSQL (Neon)
-* ✔️ Role-based access control
-
----
-
-## 📊 Sample Queries
-
-```sql
--- Total orders
-SELECT COUNT(*) FROM orders;
-
--- Order status distribution
-SELECT order_status, COUNT(*) FROM orders GROUP BY order_status;
-
 -- Total revenue
 SELECT SUM(payment_value) FROM payments;
+
+-- Orders by status
+SELECT order_status, COUNT(*) FROM orders GROUP BY order_status;
+
+-- Top product categories by revenue (using star schema)
+SELECT dp.category, SUM(f.price) as revenue
+FROM fact_order_items f
+JOIN dim_products dp ON f.product_id = dp.product_id
+GROUP BY dp.category
+ORDER BY revenue DESC
+LIMIT 10;
 ```
 
 ---
 
-## 🎬 Demo Video
+## Performance Tuning
 
-👉 *(Add your YouTube unlisted link here)*
-
----
-
-## 📌 Conclusion
-
-This project demonstrates:
-
-* Real-world **data modeling**
-* Practical **database design**
-* Efficient **ETL pipeline creation**
-* Cloud database deployment
-
-
-
+See [docs/performance_tuning_report.md](docs/performance_tuning_report.md) for the full EXPLAIN ANALYZE report with before/after indexing comparisons.
