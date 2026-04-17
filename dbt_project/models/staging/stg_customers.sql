@@ -1,3 +1,4 @@
+-- Staging model: clean and rename raw customer columns
 select
     customer_id,
     customer_zip_code_prefix as zip_code,
