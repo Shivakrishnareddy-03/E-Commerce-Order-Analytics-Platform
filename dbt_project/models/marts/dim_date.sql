@@ -10,9 +10,9 @@ with date_spine as (
 select
     to_char(full_date, 'YYYYMMDD')::int as date_key,
     full_date,
-    extract(year from full_date)::int as year,
-    extract(quarter from full_date)::int as quarter,
-    extract(month from full_date)::int as month,
-    extract(day from full_date)::int as day,
+    extract(year from full_date)::int as date_year,
+    extract(quarter from full_date)::int as date_quarter,
+    extract(month from full_date)::int as date_month,
+    extract(day from full_date)::int as date_day,
     extract(dow from full_date)::int as day_of_week
 from date_spine

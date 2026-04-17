@@ -20,14 +20,14 @@ select
     o.customer_id,
     oi.product_id,
     oi.seller_id,
-    to_char(o.order_date, 'YYYYMMDD')::int as date_key,
     oi.price,
     oi.shipping_charges,
+    o.order_status,
+    to_char(o.order_date, 'YYYYMMDD')::int as date_key,
     op.total_payment_value as payment_value,
-    coalesce(orv.avg_review_score, 0) as review_score,
-    o.order_status
+    coalesce(orv.avg_review_score, 0) as review_score
 from {{ ref('stg_order_items') }} as oi
-join {{ ref('stg_orders') }} as o
+inner join {{ ref('stg_orders') }} as o
     on oi.order_id = o.order_id
 left join order_payments as op
     on oi.order_id = op.order_id
