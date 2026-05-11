@@ -37,7 +37,7 @@ Design, implement, and analyze a real-world e-commerce dataset using a well-stru
 - Deployed to **Render** with continuous deployment from GitHub
 - Credentials managed via environment variables (no hardcoding)
 
-**Live App:** [https://ecommerce-order-analytics.onrender.com](https://ecommerce-order-analytics.onrender.com) *(may take ~60s to wake up on free tier)*
+**Live App:** [https://e-commerce-order-analytics-platform.onrender.com](https://e-commerce-order-analytics-platform.onrender.com) *(may take ~60s to wake up on free tier)*
 
 ---
 
