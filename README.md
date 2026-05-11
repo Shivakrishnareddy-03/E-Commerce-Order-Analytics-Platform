@@ -26,6 +26,21 @@ Design, implement, and analyze a real-world e-commerce dataset using a well-stru
 
 ---
 
+## Phase 3: Application Layer and Cloud Deployment
+
+- Built an interactive **BI Dashboard** using **Streamlit** and **Plotly**
+- Dashboard queries the **live Neon PostgreSQL database** dynamically via SQLAlchemy connection pooling
+- **6 visualizations**: Monthly Revenue Trend (line + MoM growth bars), Order Status (donut), Revenue by Category, Revenue by State, Top 10 Sellers (colored by review score), Payment Methods
+- **3 interactive filters**: Date range (From / To), Customer State multiselect, Product Category multiselect — all charts update dynamically on every filter change
+- All data loaders use `@st.cache_data(ttl=3600)` for performance
+- No static CSV reads — 100% live database queries
+- Deployed to **Render** with continuous deployment from GitHub
+- Credentials managed via environment variables (no hardcoding)
+
+**Live App:** [https://ecommerce-order-analytics.onrender.com](https://ecommerce-order-analytics.onrender.com) *(may take ~60s to wake up on free tier)*
+
+---
+
 ## Tech Stack
 
 - **Python** (Pandas, SQLAlchemy)
@@ -33,6 +48,9 @@ Design, implement, and analyze a real-world e-commerce dataset using a well-stru
 - **dbt** (Data Build Tool) for transformations and testing
 - **SQLFluff** for SQL linting
 - **GitHub Actions** for CI/CD
+- **Streamlit** for interactive BI dashboard
+- **Plotly** for dynamic visualizations
+- **Render** for cloud deployment
 - **Git/GitHub** for version control
 
 ---
@@ -41,6 +59,11 @@ Design, implement, and analyze a real-world e-commerce dataset using a well-stru
 
 ```
 E-Commerce-Order-Analytics-Platform/
+│
+├── app/                           # Phase 3 — Streamlit Dashboard
+│   ├── app.py                     # Main dashboard (charts, filters, layout)
+│   ├── db.py                      # SQLAlchemy engine with connection pooling
+│   └── queries.py                 # SQL query builders (filtered_orders CTE pattern)
 │
 ├── data/                          # Raw dataset (9 CSV files)
 │
@@ -84,6 +107,7 @@ E-Commerce-Order-Analytics-Platform/
 ├── docs/
 │   └── performance_tuning_report.md
 │
+├── render.yaml                    # Render deployment config (Phase 3)
 ├── ERD.png                        # Entity Relationship Diagram (3NF)
 ├── star_schema.png                # Star Schema Diagram
 ├── DMQL_3NF_Report.pdf            # 3NF justification report
@@ -181,7 +205,16 @@ dbt docs generate
 dbt docs serve    # Opens data catalog in browser
 ```
 
-### 5. GitHub Secrets (for CI/CD)
+### 5. Run Phase 3 (Streamlit dashboard)
+
+```bash
+# from project root with venv active
+streamlit run app/app.py
+```
+
+Open [http://localhost:8501](http://localhost:8501) in your browser.
+
+### 6. GitHub Secrets (for CI/CD)
 
 Add these in GitHub repo Settings > Secrets:
 - `DBT_HOST`
